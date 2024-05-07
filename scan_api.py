@@ -1,6 +1,6 @@
 import requests
 from web3 import Web3
-from utils.functions import timestamp_to_date
+from web3_scan_api.utils.functions import timestamp_to_date
 import os
 
 class ScanApi:
@@ -69,7 +69,7 @@ class ScanApi:
 
 
     def number_of_transactions_found(self, account_address, start_block=0, end_block=99999999, page=1, offset=1000, sort='asc'):
-        url = f'https://api.{self.chain}.com/api?module=account&action=txlist&address={account_address}&startblock={start_block}&endblock={end_block}&page={page}&offset={offset}&sort={sort}&apikey={API_KEY_BINANCE_SCAN}'
+        url = f'{self.standard_url}?module=account&action=txlist&address={account_address}&startblock={start_block}&endblock={end_block}&page={page}&offset={offset}&sort={sort}&apikey={self.api_key}'
         try:
             response = requests.get(url)
         except Exception as e:
@@ -276,7 +276,7 @@ class ScanApi:
 
 
     def get_block_number_by_timestamp(self, timestamp, closest):
-        url = f'{self.standard_url}?module=block&action=getblocknobytime&timestamp={timestamp}&closest={closest}&apikey={API_KEY_BINANCE_SCAN}'
+        url = f'{self.standard_url}?module=block&action=getblocknobytime&timestamp={timestamp}&closest={closest}&apikey={self.api_key}'
         response = requests.get(url)
         data = response.json()
         
@@ -295,23 +295,22 @@ class ScanApi:
 #     return input_decoded[1]['_incentive'], input_decoded[1]['_amount']
 
 
-# def get_transactions(self, account_address, start_block=0, end_block=99999999):
-#     url_base = f'https://api.{self.chain}.com/api'
-#     page = 1
-#     offset = 1000  # Quantidade de transações por página
-#     while True:
-#         url = f'{url_base}?module=account&action=txlist&address={account_address}&startblock={start_block}&endblock={end_block}&page={page}&offset={offset}&sort=asc&apikey={API_KEY_BINANCE_SCAN}'
-#         response = requests.get(url)
-#         data = response.json()
-#         transactions = data['result']
+    def get_transactions(self, account_address, start_block=0, end_block=99999999):
+        page = 1
+        offset = 1000  # Quantidade de transações por página
+        while True:
+            url = f'{self.standard_url}?module=account&action=txlist&address={account_address}&startblock={start_block}&endblock={end_block}&page={page}&offset={offset}&sort=asc&apikey={self.api_key}'
+            response = requests.get(url)
+            data = response.json()
+            transactions = data['result']
 
-#         if not transactions:
-#             break  # Não há mais transações, sair do loop
+            if not transactions:
+                break  # Não há mais transações, sair do loop
 
-#         for transaction in transactions:
-#             yield transaction
+            for transaction in transactions:
+                yield transaction
 
-#         page += 1  # Incrementar a página para a próxima chamada
+            page += 1  # Incrementar a página para a próxima chamada
 
 
 # def erc721_get_id(self, contract_address, account_address):
@@ -338,7 +337,7 @@ class ScanApi:
 
 
     def get_logs(self, address, topic0, start_block=0, end_block=99999999):
-        url = f'{self.standard_url}?module=logs&action=getLogs&fromBlock={start_block}&toBlock={end_block}&address={address}&topic0={topic0}&apikey={API_KEY_BINANCE_SCAN}'
+        url = f'{self.standard_url}?module=logs&action=getLogs&fromBlock={start_block}&toBlock={end_block}&address={address}&topic0={topic0}&apikey={self.api_key}'
         try:
             response = requests.get(url)
         except:
@@ -346,6 +345,47 @@ class ScanApi:
         else:
             data = response.json()
             return data['result']
+
+
+    def get_input_decoded(self, contract_address, input_data):
+        contract_address = Web3.to_checksum_address(contract_address)
+        abi = self.get_contract_abi(contract_address)
+        contract = self.rpc.eth.contract(address=contract_address, abi=abi)
+        return contract.decode_function_input(input_data) # it's a tuple with the method name and the arguments used
+    
+
+    def get_timestamp(self, tx_hash):
+        try:
+            tx = self.rpc.eth.get_transaction(tx_hash)
+        except:
+            print(f'Erro ao pegar a transação. Hash informado foi {tx_hash}. Verifique novamente.')
+        else:
+            return self.rpc.eth.get_block(tx['blockNumber'])['timestamp']
+        
+    
+    def get_contract(self, contract_address, abi):
+        contract_address = Web3.to_checksum_address(contract_address)
+        return self.rpc.eth.contract(address=contract_address, abi=abi)
+
+    
+    def get_token_symbol(self, token_address, token_abi):
+        token_contract_address = Web3.to_checksum_address(token_address)
+        token_contract = self.rpc.eth.contract(address=token_contract_address, abi=token_abi)
+        
+        try:
+            return token_contract.functions.symbol().call()
+        except:
+            return 'Error'
+    
+
+    def get_token_decimals(self, token_address, token_abi):
+        token_contract_address = Web3.to_checksum_address(token_address)
+        token_contract = self.rpc.eth.contract(address=token_contract_address, abi=token_abi)
+        
+        try:
+            return token_contract.functions.decimals().call()
+        except:
+            return 'Error'
 
 
 # def get_logs_filtered(self, address, topic0, topic1, start_block=0, end_block=99999999):

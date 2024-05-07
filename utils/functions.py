@@ -1,4 +1,5 @@
-from datetime import datetime, time
+from datetime import datetime
+import time
 
 def timestamp_to_date(timestamp):
     # Convertendo o timestamp (assumindo que está em segundos) para data e hora
