@@ -1,7 +1,6 @@
 import requests
 from web3 import Web3
-from web3_scan_api.utils.functions import timestamp_to_date
-import os
+
 
 class ScanApi:
     def __init__(self, rpc, chain:str, api_key:str):
