@@ -1,10 +1,11 @@
 from datetime import datetime
+from pytz import timezone
 import time
 
 def timestamp_to_date(timestamp):
-    # Convertendo o timestamp (assumindo que está em segundos) para data e hora
-    date_time = datetime.fromtimestamp(timestamp)
-    return date_time.strftime("%Y-%m-%d %H:%M:%S")
+    timestamp = float(timestamp)
+    dt = datetime.fromtimestamp(timestamp, tz=timezone("GMT"))
+    return dt.strftime("%Y-%m-%d %H:%M:%S")
 
 
 def convert_date_to_timestamp(date_string, date_format="%Y-%m-%d %H:%M:%S"):
