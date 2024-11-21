@@ -13,6 +13,7 @@ class ScanApi:
             BSC -> bscscan
             BASE -> basescan
             MATIC -> polygonscan
+            OP -> optimismscan
             api_key (str): In each of the scans mentioned above, the platform provide to you an api key
         """
         self.rpc = rpc
@@ -30,6 +31,8 @@ class ScanApi:
             self.standard_url = 'https://api.basescan.org/api'
         elif self.chain=='ARBITRUM' or self.chain=='ARB':
             self.standard_url = 'https://api.arbiscan.io/api'
+        elif self.chain=='OP' or self.chain=='OPTIMISM':
+            self.standard_url = 'https://api-optimistic.etherscan.io/api'
         else:
             raise ValueError('Chain name invalid')
 

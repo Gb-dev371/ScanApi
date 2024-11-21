@@ -1,5 +1,5 @@
 from web3 import Web3
-from scan_api import ScanApi
+from ScanApi.scan_api import ScanApi
 import json
 
 
@@ -27,3 +27,7 @@ class ERC20Token():
 
     def get_token_total_supply(self):
         return self.token_contract.functions.totalSupply().call()
+    
+    def get_balance_of(self, account_address, block_number):
+        account_address = Web3.to_checksum_address(account_address)
+        return self.token_contract.functions.balanceOf(account_address).call(block_identifier=block_number)

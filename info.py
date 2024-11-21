@@ -1,4 +1,4 @@
-from scan_api import ScanApi
+from ScanApi.scan_api import ScanApi
 from dotenv import load_dotenv
 from web3.middleware import geth_poa_middleware
 from web3 import Web3
@@ -18,12 +18,15 @@ arbitrum_scan = ScanApi(rpc=arbitrum, chain='ARBITRUM', api_key=ARBITRUM_SCAN_AP
 
 '''BASE'''
 MORALIS_NODE_BASE = os.getenv('MORALIS_NODE_BASE')
+MORALIS_NODE_BASE2 = os.getenv('MORALIS_NODE_BASE2')
 QUICK_NODE_BASE = os.getenv('QUICK_NODE_BASE_URL')
 BASE_NODE_URL = os.getenv('BASE_NODE')
 API_KEY_BASE_SCAN = os.getenv('BASE_SCAN_API_KEY')
 
 base = Web3(Web3.HTTPProvider(QUICK_NODE_BASE))
 # base = Web3(Web3.HTTPProvider(MORALIS_NODE_BASE))
+# base = Web3(Web3.HTTPProvider(MORALIS_NODE_BASE2))
+# base = Web3(Web3.HTTPProvider(BASE_NODE_URL))
 base_scan = ScanApi(rpc=base, chain='BASE', api_key=API_KEY_BASE_SCAN)
 
 
@@ -53,4 +56,7 @@ eth = Web3(Web3.HTTPProvider(f'https://mainnet.infura.io/v3/{API_KEY_INFURA}'))
 ether_scan = ScanApi(rpc=eth, chain='ETH', api_key=ETHER_SCAN_API_KEY)
 
 
-
+'''OPTIMISM'''
+OPTIMISM_SCAN_API_KEY = os.getenv('OPTIMISM_SCAN_API_KEY')
+op = Web3(Web3.HTTPProvider(f'https://optimism-mainnet.infura.io/v3/{API_KEY_INFURA}'))
+optimism_scan = ScanApi(rpc=op, chain='OP', api_key=OPTIMISM_SCAN_API_KEY)
